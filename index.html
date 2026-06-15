@@ -125,16 +125,14 @@
     }
 
  window.fetchMatches = async function() {
-    if (!currentUser) {
-        console.log("İstifadəçi daxil olmayıb, sorğu ləğv edildi.");
-        return; 
-    }
+    if (!currentUser) return;
     
     console.log("Məlumatlar gətirilir...");
     const API_KEY = '100dddf0da034503890c0624dc38776d';
     
-    // Heç bir əlavə zaman damğası (timestamp) olmadan, ən təmiz proxy URL strukturu:
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.football-data.org/v4/competitions/WC/matches');
+    // Köhnə corsproxy.io linkini tamamilə silib, bu təmiz allorigins proksisini yazırıq:
+    const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&_=${Date.now()}`;
 
     try {
         const response = await fetch(proxyUrl, { 
@@ -143,9 +141,12 @@
         
         if (!response.ok) throw new Error("API xətası: " + response.status);
 
-        const data = await response.json();
+        // daxili AllOrigins strukturu fərqli olduğu üçün response.json()-dan sonra məlumatı belə oxuyuruq:
+        const jsonWrapper = await response.json();
+        const data = JSON.parse(jsonWrapper.contents); // AllOrigins datanı 'contents' mətni daxilində göndərir
+        
         window.matchesData = data.matches || [];
-        console.log("Yüklənən matç sayı:", window.matchesData.length);
+        console.log("Uğurla yenilənən real matç sayı:", window.matchesData.length);
 
         // 1. Tarixlər bölməsi
         const scheduledMatches = window.matchesData.filter(m => {
