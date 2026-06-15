@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>İdman Portalı</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; color: #333; }
+        #login-panel { max-width: 350px; margin: 80px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .main-menu { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .main-btn { padding: 10px 15px; background: transparent; border: none; cursor: pointer; border-radius: 5px; font-weight: 600; transition: 0.3s; }
+        .main-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        .sub-sections { display: flex; gap: 10px; margin-bottom: 20px; }
+        .sub-btn { flex: 1; padding: 8px; background: white; border: 1px solid #ddd; text-align: center; cursor: pointer; border-radius: 6px; }
+        .sub-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .match-card { background: white; padding: 18px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        input { padding: 8px; width: 60px; border: 1px solid #ccc; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+   /* Rəng sxemi */
+.msg-4 { border-left: 5px solid #27ae60 !important; background: #e8f8f0 !important; } /* 4 xal - Yaşıl */
+.msg-2 { border-left: 5px solid #f1c40f !important; background: #fef9e7 !important; } /* 2 xal - Sarı */
+.msg-1 { border-left: 5px solid #e67e22 !important; background: #fdedec !important; } /* 1 xal - Narıncı */
+.msg-0 { border-left: 5px solid #e74c3c !important; background: #fdedec !important; } /* 0 xal - Qırmızı */
+.msg-loading { border-left: 5px solid #3498db !important; background: #ebf5fb !important; } /* Gözlənilir - Mavi */
+
+    </style>
+</head>
+<body>
+
+<div id="login-panel">
+    <div id="login-form">
+        <h3 style="text-align:center">Sistemə Giriş</h3>
+        <input type="text" id="username" class="login-input" placeholder="İstifadəçi adı">
+        <input type="password" id="password" class="login-input" placeholder="Parol">
+        <button onclick="initialLogin()" class="main-btn active" style="width:100%">Daxil ol</button>
+    </div>
+    <div id="reset-form" style="display:none;">
+        <h3>Parolu yenilə</h3>
+        <input type="password" id="new-password" class="login-input" placeholder="Yeni parol">
+        <button onclick="updatePassword()" class="main-btn active" style="background:#27ae60; width:100%">Yadda saxla</button>
+    </div>
+</div>
+
+<div id="main-system" style="display:none;">
+    <div class="main-menu">
+        <button class="main-btn active" onclick="showMain('tab1', this)">Livescore</button>
+        <button class="main-btn" onclick="showMain('tab2', this)">Proqnozlar</button>
+        <button class="main-btn" onclick="showMain('tab3', this)">Cədvəl</button>
+        <button class="main-btn" onclick="showMain('tab4', this)">Bildirişlər</button>
+        <button onclick="hardReset()" style="background:#c0392b; color:white; padding:10px; border:none; border-radius:5px; cursor:pointer;">
+    Sistemi Tam Sıfırla
+</button>
+
+    </div>
+
+    <div id="tab1" class="tab-content active">
+        <div class="sub-sections">
+            <div class="sub-btn active" onclick="showSub('live-panel', this)">Canlı</div>
+            <div class="sub-btn" onclick="showSub('finished-panel', this)">Bitmiş</div>
+            <div class="sub-btn" onclick="showSub('schedule-panel', this)">Tarixlər</div>
+        </div>
+        <div id="live-panel" class="panel active"><h3>🔴 Canlı</h3><div id="live-container"></div></div>
+        <div id="finished-panel" class="panel"><h3>✅ Bitmiş</h3><div id="finished-container"></div></div>
+        <div id="schedule-panel" class="panel"><h3>📅 Proqram</h3><div id="schedule-container"></div></div>
+    </div>
+
+    <div id="tab2" class="tab-content">
+        <h3>Proqnozlar</h3>
+        <div id="tab2-container">Yüklənir...</div>
+    </div>
+
+    <div id="tab3" class="tab-content">
+        <h3>Turnir Cədvəli</h3>
+        <table>
+            <thead><tr><th>Yer</th><th>İstifadəçi</th><th>Xal</th></tr></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="tab4" class="tab-content">
+        <h3>Bildirişləriniz</h3>
+        <div id="notification-container"></div>
+    </div>
+</div>
+
+<script>
+    let currentUser = "";
+    let matchesData = [];
+
+    // ... (Login funksiyaları eyni qalır) ...
+    function initialLogin() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        if (pass === "1234") { currentUser = user; document.getElementById('login-form').style.display = 'none'; document.getElementById('reset-form').style.display = 'block'; }
+        else { alert("Yanlış parol! İlkin parol 1234-dür."); }
+    }
+
+    function updatePassword() {
+        const newPass = document.getElementById('new-password').value;
+        if (newPass.length >= 4) {
+            localStorage.setItem('pass_' + currentUser, newPass);
+            document.getElementById('login-panel').style.display = 'none';
+            document.getElementById('main-system').style.display = 'block';
+            fetchMatches();
+        } else { alert("Parol ən az 4 simvol olmalıdır!"); }
+    }
+
+    async function fetchMatches() {
+        const API_KEY = '100dddf0da034503890c0624dc38776d';
+        const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', { headers: { 'X-Auth-Token': API_KEY } });
+        const data = await response.json();
+        matchesData = data.matches;
+
+        // Tarixlər bölməsi üçün yenilənmə:
+        document.getElementById('schedule-container').innerHTML = matchesData.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED').map(m => `
+            <div class="match-card">
+                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
+                <small style="color:#666">📅 ${new Date(m.utcDate).toLocaleDateString()} ⏰ ${new Date(m.utcDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+            </div>`).join('') || "Oyun yoxdur.";
+
+        // ... (Qalan kodlar eyni) ...
+document.getElementById('live-container').innerHTML = matchesData.filter(m => 
+    m.status === 'IN_PLAY' || m.status === 'PAUSED' || m.status === 'HALFTIME'
+).map(m => {
+    // Cari hesabı almaq üçün: birinci 'current' sahəsini yoxlayırıq, 
+    // yoxdursa 'fullTime' sahəsinə baxırıq.
+    const homeScore = (m.score.current && m.score.current.home !== null) ? m.score.current.home : (m.score.fullTime.home ?? 0);
+    const awayScore = (m.score.current && m.score.current.away !== null) ? m.score.current.away : (m.score.fullTime.away ?? 0);
+    
+    return `
+    <div class="match-card">
+        <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
+        <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">
+            ${homeScore} : ${awayScore}
+        </div>
+        <small>Status: ${m.status}</small>
+    </div>`;
+}).join('') || "Hazırda canlı oyun yoxdur.";
+
+        document.getElementById('finished-container').innerHTML = matchesData.filter(m => m.status === 'FINISHED').map(m => `<div class="match-card">${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</div>`).join('') || "Oyun yoxdur.";
+        
+        document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).map((m, i) => {
+            const saved = localStorage.getItem('s-' + currentUser + '-' + i);
+            const isDisabled = saved ? 'disabled' : '';
+            return `<div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
+                <input type="number" id="h-${i}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
+                <input type="number" id="a-${i}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
+                <button onclick="saveScore(${i})" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}</button></div>`;
+        }).join('');
+        
+        updatePointsTable(); updateNotifications();
+        checkAndRefreshStatus();
+    }
+    
+    // ... (saveScore, updateNotifications, updatePointsTable funksiyaları dəyişməz qalır) ...
+    function saveScore(i) {
+    const m = matchesData[i];
+    const hInput = document.getElementById(`h-${i}`);
+    const aInput = document.getElementById(`a-${i}`);
+    const btn = document.querySelector(`button[onclick="saveScore(${i})"]`);
+    
+    const h = parseInt(hInput.value);
+    const a = parseInt(aInput.value);
+    
+    if (!isNaN(h) && !isNaN(a)) {
+        let pts = parseInt(localStorage.getItem('pts_' + currentUser) || 0);
+        let msgText = "";
+        const matchName = `${m.homeTeam.name} - ${m.awayTeam.name}`;
+
+        if (m.status === 'FINISHED') {
+            const realH = m.score.fullTime.home;
+            const realA = m.score.fullTime.away;
+            
+            if (h === realH && a === realA) {
+                pts += 4;
+                msgText = `${matchName} (${realH}:${realA}) - Dəqiq hesab! 4 xal qazandınız.`;
+            } else if ((realH !== realA) && (h !== a) && ((h - a) === (realH - realA))) {
+                pts += 2;
+                msgText = `${matchName} (${realH}:${realA}) - Qol fərqi düzdür! 2 xal qazandınız.`;
+            } else if (realH === realA && h === a) {
+                pts += 1;
+                msgText = `${matchName} (${realH}:${realA}) - Bərabərlik düz tapıldı! 1 xal qazandınız.`;
+            } else if ((realH > realA && h > a) || (realA > realH && a > h)) {
+                pts += 1;
+                msgText = `${matchName} (${realH}:${realA}) - Qalibi düzgün tapdınız! 1 xal qazandınız.`;
+            } else {
+                msgText = `${matchName} (${realH}:${realA}) - Proqnozunuz (${h}:${a}) düzgün çıxmadı.`;
+            }
+            localStorage.setItem('pts_' + currentUser, pts);
+        } else {
+            msgText = `${matchName}: Proqnozunuz (${h}:${a}) qeydə alındı, oyunun bitməsi gözlənilir.`;
+        }
+
+        // Bildirişi obyekt kimi saxlayırıq (JSON)
+        const notification = { text: msgText, time: Date.now() };
+        localStorage.setItem('s-' + currentUser + '-' + i, `${h} - ${a}`);
+        localStorage.setItem('msg_' + currentUser + '_' + i, JSON.stringify(notification));
+        
+        hInput.disabled = true; aInput.disabled = true;
+        btn.disabled = true; btn.innerText = "Yadda saxlanıldı";
+        btn.style.backgroundColor = "#bdc3c7";
+
+        updatePointsTable(); 
+        updateNotifications();
+    } else {
+        alert("Zəhmət olmasa xanaları doldurun!");
+    }
+}
+
+function updateNotifications() {
+    let container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    let messages = [];
+    
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key.startsWith('msg_' + currentUser + '_')) {
+            try {
+                let data = JSON.parse(localStorage.getItem(key));
+                messages.push(data);
+            } catch (e) {
+                // Köhnə məlumatları təmizləmək və ya emal etmək üçün
+                console.log("Köhnə formatlı məlumat aşkar edildi.");
+            }
+        }
+    }
+
+    // Ən son bildirişi ən başa çəkirik
+    messages.sort((a, b) => b.time - a.time);
+    
+    let html = messages.map(msgData => {
+        let dateStr = new Date(msgData.time).toLocaleString('az-AZ');
+        let text = msgData.text;
+        
+        let colorClass = "msg-loading";
+        if (text.includes("4 xal")) colorClass = "msg-4";
+        else if (text.includes("2 xal")) colorClass = "msg-2";
+        else if (text.includes("1 xal")) colorClass = "msg-1";
+        else if (text.includes("düzgün çıxmadı")) colorClass = "msg-0";
+        
+        return `<div class="match-card ${colorClass}">
+                    <div style="font-size: 11px; color: #777; margin-bottom: 5px;">${dateStr}</div>
+                    ${text}
+                </div>`;
+    }).join('');
+
+    container.innerHTML = html || "<p>Hələlik bildiriş yoxdur.</p>";
+}
+
+
+    
+    function updatePointsTable() {
+        let users = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i);
+            if (key.startsWith('pts_')) users.push({ name: key.replace('pts_', ''), pts: parseInt(localStorage.getItem(key)) });
+        }
+        users.sort((a, b) => b.pts - a.pts);
+        document.getElementById('table-body').innerHTML = users.map((u, i) => `<tr><td>${i+1}</td><td>${u.name}</td><td>${u.pts}</td></tr>`).join('');
+    }
+
+    function showMain(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.main-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+    function showSub(id, btn) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+    function hardReset() {
+    // 1. Bütün məlumatları təmizləyir
+    localStorage.clear();
+    
+    // 2. İstifadəçiyə məlumat verir
+    alert("Sistem tamamilə təmizləndi! Səhifə yenilənir.");
+    
+    // 3. Səhifəni kəşf yaddaşını təmizləyərək yenidən yükləyir
+    window.location.reload(true);
+}
+    function calculateAndNotify(m, i) {
+    const saved = localStorage.getItem('s-' + currentUser + '-' + i);
+    if (!saved) return;
+
+    const [h, a] = saved.split(' - ').map(Number);
+    const realH = m.score.fullTime.home;
+    const realA = m.score.fullTime.away;
+    
+    let pts = parseInt(localStorage.getItem('pts_' + currentUser) || 0);
+    let msgText = "";
+    const matchName = `${m.homeTeam.name} - ${m.awayTeam.name}`;
+
+    // Xal hesablama məntiqi (saveScore ilə eyni)
+    if (h === realH && a === realA) {
+        pts += 4;
+        msgText = `${matchName} (${realH}:${realA}) - Dəqiq hesab! 4 xal qazandınız.`;
+    } else if ((realH !== realA) && (h !== a) && ((h - a) === (realH - realA))) {
+        pts += 2;
+        msgText = `${matchName} (${realH}:${realA}) - Qol fərqi düzdür! 2 xal qazandınız.`;
+    } else if (realH === realA && h === a) {
+        pts += 1;
+        msgText = `${matchName} (${realH}:${realA}) - Bərabərlik düz tapıldı! 1 xal qazandınız.`;
+    } else if ((realH > realA && h > a) || (realA > realH && a > h)) {
+        pts += 1;
+        msgText = `${matchName} (${realH}:${realA}) - Qalibi düzgün tapdınız! 1 xal qazandınız.`;
+    } else {
+        msgText = `${matchName} (${realH}:${realA}) - Proqnozunuz (${h}:${a}) düzgün çıxmadı.`;
+    }
+
+    localStorage.setItem('pts_' + currentUser, pts);
+    localStorage.setItem('msg_' + currentUser + '_' + i, JSON.stringify({ text: msgText, time: Date.now() }));
+    updatePointsTable();
+}
+
+function checkAndRefreshStatus() {
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key.startsWith('msg_' + currentUser + '_')) {
+            let matchIndex = key.split('_')[2]; 
+            let data = JSON.parse(localStorage.getItem(key));
+
+            if (data.text.includes("gözlənilir")) {
+                let match = matchesData.find((m, index) => index == matchIndex);
+                if (match && match.status === 'FINISHED') {
+                    console.log("Oyun bitdi, nəticə yenilənir...");
+                    localStorage.removeItem(key);
+                    calculateAndNotify(match, matchIndex);
+                    updateNotifications(); // Ekranı yenilə
+                }
+            }
+        }
+    }
+}
+
+</script>
+</body>
+</html>
