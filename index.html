@@ -53,6 +53,7 @@
         if (!response.ok) throw new Error("API xətası: " + response.status);
 
         const data = await response.json();
+        console.log("API-dən gələn məlumat:", data);
         const matchesData = data.matches;
 
         // 1. Tarixlər bölməsi
