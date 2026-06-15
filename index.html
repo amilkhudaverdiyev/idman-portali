@@ -38,7 +38,6 @@
 </head>
     <script>
     console.log("Script işə düşdü!");
-
 window.fetchMatches = async function() {
     console.log("Sorğu göndərilir...");
     
@@ -76,45 +75,7 @@ window.fetchMatches = async function() {
         // 2. Canlı oyunlar bölməsi
         document.getElementById('live-container').innerHTML = window.matchesData
             .filter(m => m.status === 'IN_PLAY' || m.status === 'PAUSED' || m.status === 'HALFTIME')
-            .map(m => {
-                const homeScore = (m.score.current && m.score.current.home !== null) ? m.score.current.home : (m.score.fullTime.home ?? 0);
-                const awayScore = (m.score.current && m.score.current.away !== null) ? m.score.current.away : (m.score.fullTime.away ?? 0);
-                return `
-                <div class="match-card">
-                    <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
-                    <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">${homeScore} : ${awayScore}</div>
-                    <small>Status: ${m.status}</small>
-                </div>`;
-            }).join('') || "Hazırda canlı oyun yoxdur.";
 
-        // 3. Bitmiş oyunlar bölməsi
-        document.getElementById('finished-container').innerHTML = window.matchesData
-            .filter(m => m.status === 'FINISHED')
-            .map(m => `<div class="match-card">${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</div>`)
-            .join('') || "Oyun yoxdur.";
-        
-        // 4. Proqnoz tabı bölməsi
-        document.getElementById('tab2-container').innerHTML = window.matchesData.slice(0, 20).map((m, i) => {
-            const saved = localStorage.getItem('s-' + currentUser + '-' + i);
-            const isDisabled = saved ? 'disabled' : '';
-            return `<div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
-                <input type="number" id="h-${i}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
-                <input type="number" id="a-${i}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
-                <button onclick="saveScore(${i})" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}</button></div>`;
-        }).join('');
-        
-        // --- ƏLAVƏ FUNKSİYALAR ---
-        if(typeof updatePointsTable === 'function') updatePointsTable();
-        if(typeof updateNotifications === 'function') updateNotifications();
-        if(typeof checkAndRefreshStatus === 'function') checkAndRefreshStatus();
-        
-        console.log("UI uğurla yeniləndi!");
-
-    } catch (error) {
-        console.error("Xəta baş verdi:", error);
-        alert("Məlumatı yükləmək mümkün olmadı. Konsola (F12) bax.");
-    }
-};
 
 
 
