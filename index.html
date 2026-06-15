@@ -39,24 +39,27 @@
     <script>
     console.log("Script işə düşdü!");
 
+//    async function fetchMatches() {
     async function fetchMatches() {
     const API_KEY = '100dddf0da034503890c0624dc38776d';
-    // fetchMatches funksiyasının içindəki fetch hissəsini bununla dəyiş:
-const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
-const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+    const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
+    // Yeni, daha stabil proxy:
+    const url = 'https://api.cors.lol/?url=' + encodeURIComponent(targetUrl);
+    
+    try {
+        const response = await fetch(url, {
+            headers: { 'X-Auth-Token': API_KEY }
+        });
+        
+        // Bu dəfə birbaşa JSON oxuyuruq, çünki bu proxy "raw" (birbaşa) verir
+        const data = await response.json();
+        
+        matchesData = data.matches;
 
-try {
-    const response = await fetch(proxyUrl, {
-        method: 'GET',
-        mode: 'cors' // CORS rejimini məcburi aktivləşdiririk
-    });
-    
-    if (!response.ok) throw new Error("Proxy cavab vermədi: " + response.status);
-    
-    const json = await response.json();
-    const data = JSON.parse(json.contents);
-    
-    matchesData = data.matches;
+        // ... (Bundan sonrakı render kodların olduğu kimi qalır)
+        console.log("Məlumat uğurla alındı!");
+        // ... (Qalan kodlar)
+
     // ... davamı olduğu kimi qalır
 
 
