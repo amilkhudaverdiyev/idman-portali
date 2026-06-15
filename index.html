@@ -42,8 +42,10 @@
     async function fetchMatches() {
         console.log("fetchMatches çağırıldı!");
         const API_KEY = '100dddf0da034503890c0624dc38776d';
-        const url = 'https://corsproxy.io/?https://api.football-data.org/v4/competitions/WC/matches';
-        
+        //const url = 'https://corsproxy.io/?https://api.football-data.org/v4/competitions/WC/matches';
+        // Köhnə proxy-ni sil və bunu qoy:
+const url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.football-data.org/v4/competitions/WC/matches');
+
         try {
             const response = await fetch(url, { 
                 headers: { 'X-Auth-Token': API_KEY }
