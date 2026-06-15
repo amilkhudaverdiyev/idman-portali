@@ -40,7 +40,7 @@
     console.log("Script işə düşdü!");
 
 //    async function fetchMatches() {
-    async function fetchMatches() {
+   /* async function fetchMatches() {
     const API_KEY = '100dddf0da034503890c0624dc38776d';
     const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
     // Yeni, daha stabil proxy:
@@ -118,6 +118,31 @@ async function fetchMatches() {
         
     } catch (e) {
         console.error("Xəta:", e.message);
+    }
+}
+*/
+        async function fetchMatches() {
+    const API_KEY = '100dddf0da034503890c0624dc38776d';
+    // Hədəf URL
+    const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
+    // Proxy vasitəsilə sorğu
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+    
+    try {
+        const response = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: { 'X-Auth-Token': API_KEY }
+        });
+        
+        if (!response.ok) throw new Error("API cavabı uğursuzdur: " + response.status);
+        
+        const data = await response.json();
+        matchesData = data.matches;
+        
+        // Render funksiyalarını çağırırıq
+        updateUI(); 
+    } catch (e) {
+        console.error("CORS və ya Bağlantı Xətası:", e);
     }
 }
 
