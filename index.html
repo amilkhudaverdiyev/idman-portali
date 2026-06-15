@@ -124,22 +124,28 @@
         }
     }
 
-  window.fetchMatches = async function() {
-    if (!currentUser) return;
+   window.fetchMatches = async function() {
+    if (!currentUser) {
+        console.log("İstifadəçi daxil olmayıb, sorğu ləğv edildi.");
+        return; 
+    }
     
     console.log("Məlumatlar gətirilir...");
     const API_KEY = '100dddf0da034503890c0624dc38776d';
+    
+    // Heç bir əlavə zaman damğası (timestamp) olmadan, ən təmiz proxy URL strukturu:
     const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.football-data.org/v4/competitions/WC/matches');
 
     try {
-        const response = await fetch(proxyUrl, { headers: { 'X-Auth-Token': API_KEY } });
+        const response = await fetch(proxyUrl, { 
+            headers: { 'X-Auth-Token': API_KEY } 
+        });
+        
         if (!response.ok) throw new Error("API xətası: " + response.status);
 
         const data = await response.json();
         window.matchesData = data.matches || [];
-
-        // CSS stilini qorumaq üçün şəkillərə standart ölçü (məsələn: 24px) və boşluq veririk
-        const flagStyle = `width: 24px; height: auto; vertical-align: middle; margin: 0 8px; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);`;
+        console.log("Yüklənən matç sayı:", window.matchesData.length);
 
         // 1. Tarixlər bölməsi
         const scheduledMatches = window.matchesData.filter(m => {
@@ -148,10 +154,8 @@
         });
         document.getElementById('schedule-container').innerHTML = scheduledMatches.map(m => `
             <div class="match-card">
-                <img src="${m.homeTeam.crest}" style="${flagStyle}" alt=""> 
-                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong> 
-                <img src="${m.awayTeam.crest}" style="${flagStyle}" alt=""><br>
-                <small style="color:#666; margin-left: 40px;">📅 ${new Date(m.utcDate).toLocaleDateString()} ⏰ ${new Date(m.utcDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
+                <small style="color:#666">📅 ${new Date(m.utcDate).toLocaleDateString()} ⏰ ${new Date(m.utcDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
             </div>`).join('') || "Planlaşdırılan oyun yoxdur.";
 
         // 2. Canlı oyunlar bölməsi
@@ -164,11 +168,9 @@
             const awayScore = (m.score.current && m.score.current.away !== null) ? m.score.current.away : (m.score.fullTime.away ?? 0);
             return `
             <div class="match-card">
-                <img src="${m.homeTeam.crest}" style="${flagStyle}" alt="">
-                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong>
-                <img src="${m.awayTeam.crest}" style="${flagStyle}" alt=""><br>
-                <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0; padding-left: 40px;">${homeScore} : ${awayScore}</div>
-                <small style="padding-left: 40px;">Status: 🔴 ${m.status}</small>
+                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
+                <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">${homeScore} : ${awayScore}</div>
+                <small>Status: 🔴 ${m.status}</small>
             </div>`;
         }).join('') || "Hazırda canlı oyun yoxdur.";
 
@@ -179,30 +181,21 @@
         });
         document.getElementById('finished-container').innerHTML = finishedMatches.map(m => `
             <div class="match-card">
-                <img src="${m.homeTeam.crest}" style="${flagStyle}" alt="">
                 <strong>${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</strong>
-                <img src="${m.awayTeam.crest}" style="${flagStyle}" alt="">
-                <br><small style="color:green; margin-left: 40px;">✅ Bitib</small>
+                <br><small style="color:green">✅ Bitib</small>
             </div>`).join('') || "Bitmiş oyun yoxdur.";
             
-        // 4. Proqnoz tabı bölməsi (Bayraqlar bura da əlavə olundu)
+        // 4. Proqnoz tabı bölməsi
         document.getElementById('tab2-container').innerHTML = window.matchesData.slice(0, 20).map((m) => {
             const saved = localStorage.getItem('s-' + currentUser + '-' + m.id);
             const isDisabled = saved ? 'disabled' : '';
             return `
-            <div class="match-card">
-                <div style="margin-bottom: 10px; display: flex; align-items: center;">
-                    <img src="${m.homeTeam.crest}" style="${flagStyle}" alt="">
-                    <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong>
-                    <img src="${m.awayTeam.crest}" style="${flagStyle}" alt="">
-                </div>
-                <div style="padding-left: 40px;">
-                    <input type="number" id="h-${m.id}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}> : 
-                    <input type="number" id="a-${m.id}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
-                    <button onclick="saveScore('${m.id}')" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white; margin-left:10px;" ${isDisabled}>
-                        ${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}
-                    </button>
-                </div>
+            <div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
+                <input type="number" id="h-${m.id}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
+                <input type="number" id="a-${m.id}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
+                <button onclick="saveScore('${m.id}')" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>
+                    ${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}
+                </button>
             </div>`;
         }).join('');
         
@@ -214,6 +207,7 @@
         console.error("Xəta baş verdi:", e);
     }
 };
+
     function saveScore(matchId) {
         const m = window.matchesData.find(match => match.id == matchId);
         if (!m) { alert("Matç tapılmadı."); return; }
