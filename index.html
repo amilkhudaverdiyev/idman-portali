@@ -83,14 +83,26 @@
         ).join('') || "Oyun yoxdur.";
         
         // 4. Proqnoz tabı bölməsi
-        document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).map((m, i) => {
+       /* document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).map((m, i) => {
             const saved = localStorage.getItem('s-' + currentUser + '-' + i);
             const isDisabled = saved ? 'disabled' : '';
             return `<div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
                 <input type="number" id="h-${i}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
                 <input type="number" id="a-${i}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
                 <button onclick="saveScore(${i}, event)" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}</button></div>`;
-        }).join('');
+        }).join(''); */
+        // Köhnə kodu bununla əvəz edin:
+document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).map((m) => {
+    const saved = localStorage.getItem('s-' + currentUser + '-' + m.id); // m.id istifadə edin
+    const isDisabled = saved ? 'disabled' : '';
+    return `<div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
+        <input type="number" id="h-${m.id}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
+        <input type="number" id="a-${m.id}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
+        <button onclick="saveScore('${m.id}')" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>
+            ${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}
+        </button></div>`;
+}).join('');
+
         
         // Məlumatlar yükləndikdən sonra köməkçi funksiyaları çağır
         updatePointsTable(); 
@@ -188,8 +200,14 @@
     }
 
     // ... (saveScore, updateNotifications, updatePointsTable funksiyaları dəyişməz qalır) ...
-    function saveScore(i) {
-    const m = window.matchesData[i];
+    function saveScore(matchId) {
+    // 1. Matçı birbaşa ID ilə tapın (indeksdən asılı qalmayın)
+    const m = window.matchesData.find(match => match.id == matchId);
+    
+    if (!m) {
+        alert("Səhv baş verdi: Matç tapılmadı.");
+        return;
+    }
     const hInput = document.getElementById(`h-${i}`);
     const aInput = document.getElementById(`a-${i}`);
     const btn = document.querySelector(`button[onclick="saveScore(${i})"]`);
