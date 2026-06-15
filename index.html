@@ -246,30 +246,45 @@
     }
 
     function updateNotifications() {
-        let container = document.getElementById('notification-container');
-        if (!container) return;
-        
-        let messages = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i);
-            if (key.startsWith('msg_' + currentUser + '_')) {
-                try { messages.push(JSON.parse(localStorage.getItem(key))); } catch (e) {}
-            }
+    let container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    let messages = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key.startsWith('msg_' + currentUser + '_')) {
+            try { 
+                messages.push(JSON.parse(localStorage.getItem(key))); 
+            } catch (e) {}
         }
-        messages.sort((a, b) => b.time - a.time);
-        
-        container.innerHTML = messages.map(msgData => {
-            let dateStr = new Date(msgData.time).toLocaleString('az-AZ');
-            let text = msgData.text;
-            let colorClass = "msg-loading";
-            if (text.includes("4 xal")) colorClass = "msg-4";
-            else if (text.includes("2 xal")) colorClass = "msg-2";
-            else if (text.includes("1 xal")) colorClass = "msg-1";
-            else if (text.includes("düzgün çıxmadı")) colorClass = "msg-0";
-            
-            return `<div class="match-card ${colorClass}"><small style="color:#777">${dateStr}</small><br>${text}</div>`;
-        }).join('') || "<p>Hələlik bildiriş yoxdur.</p>";
     }
+    
+    // Ən son bildiriş yuxarıda olsun
+    messages.sort((a, b) => b.time - a.time);
+    
+    container.innerHTML = messages.map(msgData => {
+        let dateStr = new Date(msgData.time).toLocaleString('az-AZ');
+        let text = msgData.text;
+        
+        // Default (ilkin) olaraq mavi rəng təyin edirik
+        let colorClass = "msg-loading"; 
+        
+        // Şərtləri dəqiq mətndəki açar sözlərə görə yoxlayırıq
+        if (text.includes("4 xal")) {
+            colorClass = "msg-4"; // Yaşıl
+        } else if (text.includes("2 xal")) {
+            colorClass = "msg-2"; // Sarı
+        } else if (text.includes("1 xal")) {
+            colorClass = "msg-1"; // Narıncı
+        } else if (text.includes("çıxmadı") || text.includes("səhv")) {
+            colorClass = "msg-0"; // Qırmızı
+        } else if (text.includes("gözlənilir")) {
+            colorClass = "msg-loading"; // Mavi
+        }
+        
+        return `<div class="match-card ${colorClass}"><small style="color:#777">${dateStr}</small><br>${text}</div>`;
+    }).join('') || "<p style='color:gray; padding:10px;'>Hələlik bildiriş yoxdur.</p>";
+}
 
     function updatePointsTable() {
         let users = [];
