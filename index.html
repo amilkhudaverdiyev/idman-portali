@@ -38,7 +38,7 @@
 </head>
     <script>
     console.log("Script işə düşdü!");
-window.fetchMatches = async function() {
+/*window.fetchMatches = async function() {
     console.log("Sorğu göndərilir...");
     
     // API Konfiqurasiyası
@@ -74,7 +74,38 @@ updateUI();
         console.error("Xəta baş verdi:", error);
         alert("Məlumatı yükləmək mümkün olmadı. Konsola (F12) bax.");
     }
-};
+}; */
+        async function fetchMatches() {
+    const API_KEY = '100dddf0da034503890c0624dc38776d';
+    const proxy = 'https://corsproxy.io/?'; 
+    const target = 'https://api.football-data.org/v4/competitions/WC/matches';
+    
+    try {
+        const response = await fetch(proxy + encodeURIComponent(target), {
+            headers: { 'X-Auth-Token': API_KEY }
+        });
+        
+        if (!response.ok) throw new Error("API xətası: " + response.status);
+        const data = await response.json();
+        const matchesData = data.matches;
+
+        // 1. DOM elementlərini yenilə (UI-ı uyğunlaşdır)
+        // Bura əvvəlki bütün kodlarını (schedule, live, finished, tab2) yaz...
+        // Məsələn: document.getElementById('live-container').innerHTML = ...
+
+        // 2. Məlumatlar yükləndikdən sonra köməkçi funksiyaları çağır
+        // Bu funksiyalar artıq matchesData ilə işləyə biləcək
+        updatePointsTable(); 
+        updateNotifications();
+        checkAndRefreshStatus();
+        
+        console.log("Sistem tam uyğunlaşdırıldı və UI yeniləndi.");
+
+    } catch (e) {
+        console.error("Xəta baş verdi:", e);
+    }
+}
+
 
 
 </script>
