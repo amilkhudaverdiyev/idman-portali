@@ -208,9 +208,9 @@ document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).m
         alert("Səhv baş verdi: Matç tapılmadı.");
         return;
     }
-    const hInput = document.getElementById(`h-${i}`);
-    const aInput = document.getElementById(`a-${i}`);
-    const btn = document.querySelector(`button[onclick="saveScore(${i})"]`);
+    const hInput = document.getElementById(`h-${matchId}`);
+    const aInput = document.getElementById(`a-${matchId}`);
+    const btn = document.querySelector(`button[onclick="saveScore(${matchId})"]`);
     
     const h = parseInt(hInput.value);
     const a = parseInt(aInput.value);
@@ -335,8 +335,8 @@ function updateNotifications() {
     // 3. Səhifəni kəşf yaddaşını təmizləyərək yenidən yükləyir
     window.location.reload(true);
 }
-    function calculateAndNotify(m, i) {
-    const saved = localStorage.getItem('s-' + currentUser + '-' + i);
+    function calculateAndNotify(m, matchId) {
+    const saved = localStorage.getItem('s-' + currentUser + '-' + matchId);
     if (!saved) return;
 
     const [h, a] = saved.split(' - ').map(Number);
@@ -365,7 +365,7 @@ function updateNotifications() {
     }
 
     localStorage.setItem('pts_' + currentUser, pts);
-    localStorage.setItem('msg_' + currentUser + '_' + i, JSON.stringify({ text: msgText, time: Date.now() }));
+    localStorage.setItem('msg_' + currentUser + '_' + matchId, JSON.stringify({ text: msgText, time: Date.now() }));
     updatePointsTable();
 }
 // Kodunun sonuna bu funksiyanı əlavə et
