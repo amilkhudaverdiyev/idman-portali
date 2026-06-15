@@ -54,7 +54,7 @@
 
         const data = await response.json();
         console.log("API-dən gələn məlumat:", data);
-        const matchesData = data.matches;
+        window.matchesData = data.matches;
 
         // 1. Tarixlər bölməsi
         document.getElementById('schedule-container').innerHTML = matchesData.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED').map(m => `
@@ -189,7 +189,7 @@
 
     // ... (saveScore, updateNotifications, updatePointsTable funksiyaları dəyişməz qalır) ...
     function saveScore(i) {
-    const m = matchesData[i];
+    const m = window.matchesData[i];
     const hInput = document.getElementById(`h-${i}`);
     const aInput = document.getElementById(`a-${i}`);
     const btn = document.querySelector(`button[onclick="saveScore(${i})"]`);
