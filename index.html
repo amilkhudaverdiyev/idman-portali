@@ -41,17 +41,24 @@
 
     async function fetchMatches() {
     const API_KEY = '100dddf0da034503890c0624dc38776d';
-    const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
-    // Proxy ünvanı
-    const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+    // fetchMatches funksiyasının içindəki fetch hissəsini bununla dəyiş:
+const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
+const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+
+try {
+    const response = await fetch(proxyUrl, {
+        method: 'GET',
+        mode: 'cors' // CORS rejimini məcburi aktivləşdiririk
+    });
     
-    try {
-        const response = await fetch(url);
-        const json = await response.json();
-        // Proxy cavabı JSON-un içindəki "contents" hissəsindədir, onu çeviririk:
-        const data = JSON.parse(json.contents); 
-        
-        matchesData = data.matches;
+    if (!response.ok) throw new Error("Proxy cavab vermədi: " + response.status);
+    
+    const json = await response.json();
+    const data = JSON.parse(json.contents);
+    
+    matchesData = data.matches;
+    // ... davamı olduğu kimi qalır
+
 
         // Tarixlər bölməsi
         document.getElementById('schedule-container').innerHTML = matchesData.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED').map(m => `
