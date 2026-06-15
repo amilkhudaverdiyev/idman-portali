@@ -38,118 +38,45 @@
 </head>
     <script>
     console.log("Script işə düşdü!");
-
-//    async function fetchMatches() {
-   /* async function fetchMatches() {
+window.fetchMatches = async function() {
+    console.log("Sorğu göndərilir...");
+    
+    // API Konfiqurasiyası
     const API_KEY = '100dddf0da034503890c0624dc38776d';
     const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
-    // Yeni, daha stabil proxy:
-    const url = 'https://api.cors.lol/?url=' + encodeURIComponent(targetUrl);
-    
+    // corsproxy.io sorğunun arasına girərək brauzerə lazım olan icazə başlıqlarını (headers) əlavə edir
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+
     try {
-        const response = await fetch(url, {
-            headers: { 'X-Auth-Token': API_KEY }
-        });
-        
-        // Bu dəfə birbaşa JSON oxuyuruq, çünki bu proxy "raw" (birbaşa) verir
-        const data = await response.json();
-        
-        matchesData = data.matches;
-
-        // ... (Bundan sonrakı render kodların olduğu kimi qalır)
-        console.log("Məlumat uğurla alındı!");
-        // ... (Qalan kodlar)
-
-    // ... davamı olduğu kimi qalır
-
-
-        // Tarixlər bölməsi
-        document.getElementById('schedule-container').innerHTML = matchesData.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED').map(m => `
-            <div class="match-card">
-                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
-                <small style="color:#666">📅 ${new Date(m.utcDate).toLocaleDateString()} ⏰ ${new Date(m.utcDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
-            </div>`).join('') || "Oyun yoxdur.";
-
-        // Canlı oyunlar bölməsi
-        document.getElementById('live-container').innerHTML = matchesData.filter(m => 
-            m.status === 'IN_PLAY' || m.status === 'PAUSED' || m.status === 'HALFTIME'
-        ).map(m => {
-            const homeScore = (m.score.current && m.score.current.home !== null) ? m.score.current.home : (m.score.fullTime.home ?? 0);
-            const awayScore = (m.score.current && m.score.current.away !== null) ? m.score.current.away : (m.score.fullTime.away ?? 0);
-            
-            return `
-            <div class="match-card">
-                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
-                <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">
-                    ${homeScore} : ${awayScore}
-                </div>
-                <small>Status: ${m.status}</small>
-            </div>`;
-        }).join('') || "Hazırda canlı oyun yoxdur.";
-
-        // Bitmiş oyunlar bölməsi
-        document.getElementById('finished-container').innerHTML = matchesData.filter(m => m.status === 'FINISHED').map(m => `<div class="match-card">${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</div>`).join('') || "Oyun yoxdur.";
-        
-        // Proqnozlar bölməsi
-        document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).map((m, i) => {
-async function fetchMatches() {
-    const API_KEY = '100dddf0da034503890c0624dc38776d';
-    const url = 'https://api.football-data.org/v4/competitions/WC/matches';
-    
-    try {
-        console.log("Birbaşa sorğu atılır...");
-        const response = await fetch(url, { 
+        const response = await fetch(proxyUrl, {
             method: 'GET',
             headers: { 
                 'X-Auth-Token': API_KEY,
                 'Content-Type': 'application/json'
-            },
-            mode: 'cors' 
+            }
         });
-        
-        if (!response.ok) throw new Error("API xətası: " + response.status);
-        
+
+        if (!response.ok) {
+            throw new Error(`API cavab vermədi: ${response.status}`);
+        }
+
         const data = await response.json();
-        console.log("Data uğurla alındı:", data);
-        matchesData = data.matches;
         
-        // Render funksiyalarını burada çağır
-        renderAllPanels(); 
+        // Məlumatı global dəyişənə yazırıq ki, digər funksiyalar da istifadə edə bilsin
+        window.matchesData = data.matches;
+
+        console.log("Məlumat uğurla alındı!", window.matchesData);
         
-    } catch (e) {
-        console.error("Xəta:", e.message);
+        // Burada səhifəni yeniləyən və ya panelləri göstərən funksiyanı çağır
+        // Məsələn: renderAllPanels(); 
+
+    } catch (error) {
+        console.error("Xəta baş verdi:", error);
+        alert("Məlumatı yükləmək mümkün olmadı. Konsola (F12) bax.");
     }
-}
-*/
-        async function fetchMatches() {
-    const API_KEY = '100dddf0da034503890c0624dc38776d';
-    // Hədəf URL
-    const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
-    // Proxy vasitəsilə sorğu
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-    
-    try {
-        const response = await fetch(proxyUrl, {
-            method: 'GET',
-            headers: { 'X-Auth-Token': API_KEY }
-        });
-        
-        if (!response.ok) throw new Error("API cavabı uğursuzdur: " + response.status);
-        
-        const data = await response.json();
-        matchesData = data.matches;
-        
-        // Render funksiyalarını çağırırıq
-        updateUI(); 
-    } catch (e) {
-        console.error("CORS və ya Bağlantı Xətası:", e);
-    }
-}
+};
 
 
-
-    // Funksiyanı birbaşa çağırırıq
-    fetchMatches();
 </script>
 
 <body>
