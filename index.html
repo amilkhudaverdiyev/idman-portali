@@ -382,6 +382,14 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
         alert("Sistem tamamilə təmizləndi! Səhifə yenilənir.");
         window.location.reload();
     }
+    // Səhifə açıq qaldığı müddətdə hər 60 saniyədən bir datanı yeniləyir
+// Bu funksiya parolu sıfırlamır və istifadəçini sistemdən atmır
+setInterval(function() {
+    if (currentUser) {
+        console.log("Arxa fonda canlı məlumatlar avtomatik yenilənir...");
+        fetchMatches(); // Yalnız matçları və dəqiqələri yenidən çəkir
+    }
+}, 60000); // 60000 milli saniyə = 1 dəqiqə
 </script>
 </body>
 </html>
