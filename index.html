@@ -323,6 +323,12 @@ function updateNotifications() {
     localStorage.setItem('msg_' + currentUser + '_' + i, JSON.stringify({ text: msgText, time: Date.now() }));
     updatePointsTable();
 }
+// Kodunun sonuna bu funksiyanı əlavə et
+function updateUI() {
+    console.log("updateUI funksiyası çağırıldı!");
+    // Bura məlumatları ekranda göstərən kodlarını yazacaqsan
+    // Məsələn: document.getElementById('matches-container').innerHTML = "...";
+}
 
 function checkAndRefreshStatus() {
     for (let i = 0; i < localStorage.length; i++) {
