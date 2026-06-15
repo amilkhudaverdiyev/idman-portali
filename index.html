@@ -36,6 +36,30 @@
 
     </style>
 </head>
+    <script>
+    console.log("Script işə düşdü!");
+
+    async function fetchMatches() {
+        console.log("fetchMatches çağırıldı!");
+        const API_KEY = '100dddf0da034503890c0624dc38776d';
+        const url = 'https://corsproxy.io/?https://api.football-data.org/v4/competitions/WC/matches';
+        
+        try {
+            const response = await fetch(url, { 
+                headers: { 'X-Auth-Token': API_KEY }
+            });
+            console.log("Status:", response.status);
+            const data = await response.json();
+            console.log("Data:", data);
+        } catch (e) {
+            console.error("Xəta:", e);
+        }
+    }
+
+    // Funksiyanı birbaşa çağırırıq
+    fetchMatches();
+</script>
+
 <body>
 
 <div id="login-panel">
@@ -115,41 +139,6 @@
             fetchMatches();
         } else { alert("Parol ən az 4 simvol olmalıdır!"); }
     }
-
-    async function fetchMatches() {
-    console.log("--- fetchMatches başladı ---");
-    const API_KEY = '100dddf0da034503890c0624dc38776d';
-    // Buraya öz API linkini yaz
-    const url = 'https://api.football-data.org/v4/competitions/WC/matches';
-    
-    try {
-        console.log("API sorğusu atılır...");
-        const response = await fetch(url, { 
-            method: 'GET',
-            headers: { 'X-Auth-Token': API_KEY }
-        });
-        
-        console.log("Cavab statusu:", response.status);
-        
-        if (!response.ok) {
-            console.error("Server xətası, status:", response.status);
-            return;
-        }
-        
-        const data = await response.json();
-        console.log("API-dən gələn məlumat:", data);
-        
-        // Məlumat gəldisə, qlobal dəyişənə yaz
-        matchesData = data.matches;
-        
-        // Panelləri yenilə
-        renderAllPanels();
-        console.log("--- fetchMatches uğurla bitdi ---");
-        
-    } catch (e) {
-        console.error("Qlobal xəta baş verdi (yəqin ki, CORS):", e.message);
-    }
-}
 
     
     // ... (saveScore, updateNotifications, updatePointsTable funksiyaları dəyişməz qalır) ...
