@@ -64,7 +64,7 @@ window.fetchMatches = async function() {
         
         // Məlumatı global dəyişənə yazırıq ki, digər funksiyalar da istifadə edə bilsin
         window.matchesData = data.matches;
-
+updateUI();
         console.log("Məlumat uğurla alındı!", window.matchesData);
         
         // Burada səhifəni yeniləyən və ya panelləri göstərən funksiyanı çağır
