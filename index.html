@@ -324,10 +324,20 @@ function updateNotifications() {
     updatePointsTable();
 }
 // Kodunun sonuna bu funksiyanı əlavə et
+
 function updateUI() {
-    console.log("updateUI funksiyası çağırıldı!");
-    // Bura məlumatları ekranda göstərən kodlarını yazacaqsan
-    // Məsələn: document.getElementById('matches-container').innerHTML = "...";
+    const container = document.getElementById('livescore-container'); // Saytındakı siyahı üçün olan div-in ID-sini bura yaz
+    container.innerHTML = ''; // Əvvəlki məlumatları təmizlə
+
+    window.matchesData.forEach(match => {
+        const matchDiv = document.createElement('div');
+        matchDiv.className = 'match-card';
+        matchDiv.innerHTML = `
+            <p>${match.homeTeam.name} vs ${match.awayTeam.name}</p>
+            <p>Status: ${match.status}</p>
+        `;
+        container.appendChild(matchDiv);
+    });
 }
 
 function checkAndRefreshStatus() {
