@@ -124,20 +124,23 @@
         }
     }
 
-    window.fetchMatches = async function() {
-        if (!currentUser) return; // İstifadəçi giriş etməyibsə funksiyanı saxla
-        
-        console.log("Məlumatlar gətirilir...");
-        const API_KEY = '100dddf0da034503890c0624dc38776d';
-        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.football-data.org/v4/competitions/WC/matches') + '&_=' + Date.now();
+   window.fetchMatches = async function() {
+    if (!currentUser) return; // İstifadəçi giriş etməyibsə funksiyanı saxla
+    
+    console.log("Məlumatlar gətirilir...");
+    const API_KEY = '100dddf0da034503890c0624dc38776d';
+    
+    // URL-i tam təmiz formada yazırıq ki, proxy 404 xətası verməsin
+    const targetUrl = 'https://api.football-data.org/v4/competitions/WC/matches';
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
-        try {
-            const response = await fetch(proxyUrl, { headers: { 'X-Auth-Token': API_KEY } });
-            if (!response.ok) throw new Error("API xətası: " + response.status);
+    try {
+        const response = await fetch(proxyUrl, { headers: { 'X-Auth-Token': API_KEY } });
+        if (!response.ok) throw new Error("API xətası: " + response.status);
 
-            const data = await response.json();
-            window.matchesData = data.matches || [];
-            console.log("Yüklənən matç sayı:", window.matchesData.length);
+        const data = await response.json();
+        window.matchesData = data.matches || [];
+        console.log("Yüklənən matç sayı:", window.matchesData.length);
 
             // 1. Tarixlər bölməsi
             const scheduledMatches = window.matchesData.filter(m => {
@@ -275,22 +278,23 @@
     }
 
     function checkAndRefreshStatus() {
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i);
-            if (key.startsWith('msg_' + currentUser + '_')) {
-                let matchId = key.split('_')[2]; 
-                let data = JSON.parse(localStorage.getItem(key));
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key.startsWith('msg_' + currentUser + '_')) {
+            let matchId = key.split('_')[2]; 
+            let data = JSON.parse(localStorage.getItem(key));
 
-                if (data.text.includes("gözlənilir")) {
-                    let match = window.matchesData.find(m => m.id == matchId);
-                    if (match && m.status && m.status.toUpperCase() === 'FINISHED') {
-                        localStorage.removeItem(key);
-                        calculateAndNotify(match, matchId);
-                    }
+            if (data.text.includes("gözlənilir")) {
+                let match = window.matchesData.find(m => m.id == matchId);
+                // m.status yox, match.status olmalıdır
+                if (match && match.status && match.status.toUpperCase() === 'FINISHED') {
+                    localStorage.removeItem(key);
+                    calculateAndNotify(match, matchId);
                 }
             }
         }
     }
+}
 
     function calculateAndNotify(m, matchId) {
         const saved = localStorage.getItem('s-' + currentUser + '-' + matchId);
