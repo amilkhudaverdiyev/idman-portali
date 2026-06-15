@@ -232,6 +232,11 @@ document.getElementById('live-container').innerHTML = matchesData.filter(m =>
     } */
     
  function saveScore(i) {
+     if (typeof matchesData === 'undefined' || !matchesData[i]) {
+        console.error("Məlumatlar hələ yüklənməyib. Zəhmət olmasa gözləyin.");
+        alert("Sistem hələ məlumatları yükləyir, bir az gözləyin!");
+        return;
+     }
     const m = matchesData[i];
     const hInput = document.getElementById(`h-${i}`);
     const aInput = document.getElementById(`a-${i}`);
