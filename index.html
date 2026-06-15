@@ -120,6 +120,7 @@
         const API_KEY = '100dddf0da034503890c0624dc38776d';
         const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', { headers: { 'X-Auth-Token': API_KEY } });
         const data = await response.json();
+        console.log("API cavabı:", data); // Bura əlavə et
         matchesData = data.matches;
 
         // Tarixlər bölməsi üçün yenilənmə:
