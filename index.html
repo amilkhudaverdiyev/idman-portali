@@ -53,7 +53,7 @@
         if (!response.ok) throw new Error("API xətası: " + response.status);
 
         const data = await response.json();
-        matchesData = data.matches;
+        window.matchesData = data.matches;
 
         // 1. Tarixlər bölməsi
         document.getElementById('schedule-container').innerHTML = matchesData.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED').map(m => `
