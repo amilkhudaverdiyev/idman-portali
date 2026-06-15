@@ -158,21 +158,50 @@
                 <small style="color:#666">📅 ${new Date(m.utcDate).toLocaleDateString()} ⏰ ${new Date(m.utcDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
             </div>`).join('') || "Planlaşdırılan oyun yoxdur.";
 
-        // 2. Canlı oyunlar bölməsi
-        const liveMatches = window.matchesData.filter(m => {
-            const status = m.status ? m.status.toUpperCase() : '';
-            return status === 'IN_PLAY' || status === 'PAUSED' || status === 'HALFTIME' || status.includes('LIVE');
-        });
-        document.getElementById('live-container').innerHTML = liveMatches.map(m => {
-            const homeScore = (m.score.current && m.score.current.home !== null) ? m.score.current.home : (m.score.fullTime.home ?? 0);
-            const awayScore = (m.score.current && m.score.current.away !== null) ? m.score.current.away : (m.score.fullTime.away ?? 0);
-            return `
-            <div class="match-card">
-                <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
-                <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">${homeScore} : ${awayScore}</div>
-                <small>Status: 🔴 ${m.status}</small>
-            </div>`;
-        }).join('') || "Hazırda canlı oyun yoxdur.";
+        // 2. Canlı oyunlar bölməsi (Ağıllı süzgəc: Canlı oyun yoxdursa, digər aktiv dataları göstərsin)
+let liveMatches = window.matchesData.filter(m => {
+    const status = m.status ? m.status.toUpperCase() : '';
+    return status === 'IN_PLAY' || status === 'PAUSED' || status === 'HALFTIME' || status.includes('LIVE');
+});
+
+// Əgər real vaxtda canlı oyun TAPILMASA, vizual olaraq boş qalmamaq üçün ilk 3 matçı simulyasiya edirik
+let isSimulation = false;
+if (liveMatches.length === 0 && window.matchesData.length > 0) {
+    liveMatches = window.matchesData.slice(0, 3); // İlk 3 oyunu nümunə götürürük
+    isSimulation = true;
+}
+
+const flagStyle = `width: 24px; height: auto; vertical-align: middle; margin: 0 8px; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);`;
+
+document.getElementById('live-container').innerHTML = liveMatches.map(m => {
+    // Hesabları təyin edirik
+    let homeScore = 0;
+    let awayScore = 0;
+    
+    if (m.score && m.score.fullTime && m.score.fullTime.home !== null) {
+        homeScore = m.score.fullTime.home;
+        awayScore = m.score.fullTime.away;
+    } else if (m.score && m.score.current && m.score.current.home !== null) {
+        homeScore = m.score.current.home;
+        awayScore = m.score.current.away;
+    }
+
+    // Status yazısını tənzimləyirik
+    const currentStatus = isSimulation ? "Oyun Gözlənilir / Bitib" : `🔴 ${m.status}`;
+
+    return `
+    <div class="match-card" style="${isSimulation ? 'border-left: 4px solid #7f8c8d;' : 'border-left: 4px solid #e74c3c;'}">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <img src="${m.homeTeam.crest || ''}" style="${flagStyle}" onerror="this.style.display='none'">
+            <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong>
+            <img src="${m.awayTeam.crest || ''}" style="${flagStyle}" onerror="this.style.display='none'">
+        </div>
+        <div style="font-size: 1.5em; font-weight: bold; color: ${isSimulation ? '#555' : '#e74c3c'}; margin: 5px 0; padding-left: 40px;">
+            ${homeScore} : ${awayScore}
+        </div>
+        <small style="padding-left: 40px; color: #7f8c8d;">Status: ${currentStatus}</small>
+    </div>`;
+}).join('') || "Hazırda nümayiş etdiriləcək oyun tapılmadı.";
 
         // 3. Bitmiş oyunlar bölməsi
         const finishedMatches = window.matchesData.filter(m => {
