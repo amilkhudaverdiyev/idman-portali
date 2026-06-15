@@ -92,20 +92,32 @@
         
         // Proqnozlar bölməsi
         document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 20).map((m, i) => {
-            const saved = localStorage.getItem('s-' + currentUser + '-' + i);
-            const isDisabled = saved ? 'disabled' : '';
-            return `<div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
-                <input type="number" id="h-${i}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
-                <input type="number" id="a-${i}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
-                <button onclick="saveScore(${i})" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}</button></div>`;
-        }).join('');
+async function fetchMatches() {
+    const API_KEY = '100dddf0da034503890c0624dc38776d';
+    const url = 'https://api.football-data.org/v4/competitions/WC/matches';
+    
+    try {
+        console.log("Birbaşa sorğu atılır...");
+        const response = await fetch(url, { 
+            method: 'GET',
+            headers: { 
+                'X-Auth-Token': API_KEY,
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors' 
+        });
         
-        updatePointsTable(); 
-        updateNotifications();
-        checkAndRefreshStatus();
-
+        if (!response.ok) throw new Error("API xətası: " + response.status);
+        
+        const data = await response.json();
+        console.log("Data uğurla alındı:", data);
+        matchesData = data.matches;
+        
+        // Render funksiyalarını burada çağır
+        renderAllPanels(); 
+        
     } catch (e) {
-        console.error("Xəta baş verdi:", e);
+        console.error("Xəta:", e.message);
     }
 }
 
