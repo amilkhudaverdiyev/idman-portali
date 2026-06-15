@@ -348,5 +348,16 @@ function checkAndRefreshStatus() {
 }
 
 </script>
+    <script>
+    // Əgər bu funksiya burada yoxdursa, kod işləməyəcək
+    function startApp() {
+        console.log("Sistem işə düşür...");
+        fetchMatches();
+    }
+
+    // Səhifə tam yüklənəndə sistemi başlat
+    window.addEventListener('load', startApp);
+</script>
+
 </body>
 </html>
