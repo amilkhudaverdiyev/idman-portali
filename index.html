@@ -210,19 +210,17 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
             return status === 'FINISHED';
         });
         document.getElementById('finished-container').innerHTML = finishedMatches.map(m => {
-    // Təhlükəsiz xal oxuma: Əgər fullTime və ya home/away null olsa belə 0 götür
+    // KONSOLA YAZDIRAQ
+    console.log("Matç datası:", m); 
+    
+    // Əgər score null-dursa, bu konsolda görsənəcək
     const h = m.score?.fullTime?.home ?? 0;
     const a = m.score?.fullTime?.away ?? 0;
     
-    // Təhlükəsiz komanda adı oxuma
-    const hName = m.homeTeam?.name ?? "Naməlum";
-    const aName = m.awayTeam?.name ?? "Naməlum";
-
-    return `
-        <div class="match-card">
-            <strong>${hName} ${h}:${a} ${aName}</strong>
-            <br><small style="color:green">✅ Bitib</small>
-        </div>`;
+    return `<div class="match-card">
+        <strong>${m.homeTeam?.name || "Naməlum"} ${h}:${a} ${m.awayTeam?.name || "Naməlum"}</strong>
+        <br><small style="color:green">✅ Bitib</small>
+    </div>`;
 }).join('') || "Bitmiş oyun yoxdur.";
 
         // 4. Proqnoz tabı bölməsi
