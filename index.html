@@ -245,14 +245,7 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
 */
 document.getElementById('finished-container').innerHTML = matchesData.filter(m => m.status === 'FINISHED').map(m => `<div class="match-card">${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</div>`).join('') || "Oyun yoxdur.";
         
-        document.getElementById('tab2-container').innerHTML = matchesData.slice(0, 40).map((m, i) => {
-            const saved = localStorage.getItem('s-' + currentUser + '-' + i);
-            const isDisabled = saved ? 'disabled' : '';
-            return `<div class="match-card">${m.homeTeam.name} vs ${m.awayTeam.name} <br>
-                <input type="number" id="h-${i}" value="${saved ? saved.split(' - ')[0] : ''}" ${isDisabled}>
-                <input type="number" id="a-${i}" value="${saved ? saved.split(' - ')[1] : ''}" ${isDisabled}>
-                <button onclick="saveScore(${i})" class="main-btn" style="background:${saved ? '#ccc':'var(--accent)'}; color:white" ${isDisabled}>${saved ? 'Yadda saxlanıldı' : 'Yadda saxla'}</button></div>`;
-        }).join('');
+        
         
         // 4. Proqnoz tabı bölməsi
         document.getElementById('tab2-container').innerHTML = window.matchesData.slice(0, 20).map((m) => {
