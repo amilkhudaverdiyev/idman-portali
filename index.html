@@ -161,7 +161,7 @@ window.fetchMatches = async function() {
             </div>`).join('') || "Planlaşdırılan oyun yoxdur.";
 
       // 2. Canlı oyunlar bölməsi (Tamamilə yerli brauzer saatına uyğun filtrləmə)
-const indikiVaxt = new Date(); // Brauzerin tam olaraq hazırkı yerli saatı və tarixi
+/*const indikiVaxt = new Date(); // Brauzerin tam olaraq hazırkı yerli saatı və tarixi
 
 const liveMatches = window.matchesData.filter(m => {
     const status = m.status ? m.status.toUpperCase() : '';
@@ -204,7 +204,27 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
         </small>
     </div>`;
 }).join('') || `<p style="color:gray; padding:10px;">Hazırkı saata uyğun canlı oynanılan oyun tapılmadı.</p>`;
-        // 3. Bitmiş oyunlar bölməsi
+      */ // 3. Bitmiş oyunlar bölməsi
+      document.getElementById('live-container').innerHTML = matchesData.filter(m => 
+    m.status === 'IN_PLAY' || m.status === 'PAUSED' || m.status === 'HALFTIME'
+).map(m => {
+    // Cari hesabı almaq üçün: birinci 'current' sahəsini yoxlayırıq, 
+    // yoxdursa 'fullTime' sahəsinə baxırıq.
+    const homeScore = (m.score.current && m.score.current.home !== null) ? m.score.current.home : (m.score.fullTime.home ?? 0);
+    const awayScore = (m.score.current && m.score.current.away !== null) ? m.score.current.away : (m.score.fullTime.away ?? 0);
+    
+    return `
+    <div class="match-card">
+        <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
+        <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">
+            ${homeScore} : ${awayScore}
+        </div>
+        <small>Status: ${m.status}</small>
+    </div>`;
+}).join('') || "Hazırda canlı oyun yoxdur.";
+
+        
+        
         const finishedMatches = window.matchesData.filter(m => {
             const status = m.status ? m.status.toUpperCase() : '';
             return status === 'FINISHED';
