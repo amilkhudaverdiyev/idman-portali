@@ -1,4 +1,4 @@
-A<!DOCTYPE html>
+Ab<!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
@@ -243,15 +243,26 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
     </div>`;
 }).join('') || "Bitmiş oyun yoxdur.";
 */
-document.getElementById('finished-container').innerHTML = matchesData
-    .filter(m => (m.status || '').toUpperCase() === 'FINISHED')
-    .map(m => `
-        <div class="match-card">
-            ${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}
-        </div>
-    `).join('') || "Oyun yoxdur.";
 
-        
+        // Bitmiş oyunlar bölməsi - DÜZƏLİŞ
+const finishedMatches = window.matchesData.filter(m => {
+    const status = (m.status || '').toUpperCase();
+    return status === 'FINISHED';
+});
+
+const finishedContainer = document.getElementById('finished-container');
+if (finishedContainer) {
+    finishedContainer.innerHTML = finishedMatches.length > 0 
+        ? finishedMatches.map(m => `
+            <div class="match-card">
+                <strong>${m.homeTeam?.name || 'Ev sahibi'}</strong> 
+                ${m.score?.fullTime?.home ?? 0}:${m.score?.fullTime?.away ?? 0} 
+                <strong>${m.awayTeam?.name || 'Qonaq'}</strong>
+                <br><small style="color:green">✅ Bitib</small>
+            </div>`).join('') 
+        : "<p style='padding:10px;'>Bitmiş oyun tapılmadı.</p>";
+}
+
         // 4. Proqnoz tabı bölməsi
         document.getElementById('tab2-container').innerHTML = window.matchesData.slice(0, 20).map((m) => {
             const saved = localStorage.getItem('s-' + currentUser + '-' + m.id);
