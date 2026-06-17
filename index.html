@@ -1,4 +1,4 @@
-Abgc<!DOCTYPE html>
+Abrr<!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
@@ -225,7 +225,7 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
 
         
         
-       const finishedMatches = window.matchesData.filter(m => {
+      /* const finishedMatches = window.matchesData.filter(m => {
             const status = m.status ? m.status.toUpperCase() : '';
             return status === 'FINISHED';
         });
@@ -242,7 +242,7 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
         <br><small style="color:green">✅ Bitib</small>
     </div>`;
 }).join('') || "Bitmiş oyun yoxdur.";
-
+*/
 
         // Bitmiş oyunlar bölməsi - DÜZƏLİŞ
 /*const finishedMatches = window.matchesData.filter(m => {
@@ -262,7 +262,8 @@ if (finishedContainer) {
             </div>`).join('') 
         : "<p style='padding:10px;'>Bitmiş oyun tapılmadı.</p>";
 } */
-
+document.getElementById('finished-container').innerHTML = window.matchesData.filter(m => m.status === 'FINISHED').map(m => `<div class="match-card">${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</div>`).join('') || "Oyun yoxdur.";
+        
         // 4. Proqnoz tabı bölməsi
         document.getElementById('tab2-container').innerHTML = window.matchesData.slice(0, 20).map((m) => {
             const saved = localStorage.getItem('s-' + currentUser + '-' + m.id);
