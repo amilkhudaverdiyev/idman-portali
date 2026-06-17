@@ -243,9 +243,14 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
     </div>`;
 }).join('') || "Bitmiş oyun yoxdur.";
 */
-document.getElementById('finished-container').innerHTML = matchesData.filter(m => m.status === 'FINISHED').map(m => `<div class="match-card">${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}</div>`).join('') || "Oyun yoxdur.";
-        
-        
+document.getElementById('finished-container').innerHTML = matchesData
+    .filter(m => (m.status || '').toUpperCase() === 'FINISHED')
+    .map(m => `
+        <div class="match-card">
+            ${m.homeTeam.name} ${m.score.fullTime.home}:${m.score.fullTime.away} ${m.awayTeam.name}
+        </div>
+    `).join('') || "Oyun yoxdur.";
+
         
         // 4. Proqnoz tabı bölməsi
         document.getElementById('tab2-container').innerHTML = window.matchesData.slice(0, 20).map((m) => {
