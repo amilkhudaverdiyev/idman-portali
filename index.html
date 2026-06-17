@@ -1,4 +1,4 @@
-Abll<!DOCTYPE html>
+Awwl<!DOCTYPE html>
 <html lang="az">
 <head>
     <meta charset="UTF-8">
@@ -134,7 +134,9 @@ window.fetchMatches = async function() {
     const API_KEY = '100dddf0da034503890c0624dc38776d';
     
     // Heç bir əlavə zaman damğası (timestamp) olmadan, ən təmiz proxy URL strukturu:
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.football-data.org/v4/competitions/WC/matches');
+    //const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.football-data.org/v4/competitions/WC/matches');
+const timestamp = new Date().getTime();
+const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(`https://api.football-data.org/v4/competitions/WC/matches?t=${timestamp}`);
 
     try {
         const response = await fetch(proxyUrl, { 
@@ -205,7 +207,7 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
     </div>`;
 }).join('') || `<p style="color:gray; padding:10px;">Hazırkı saata uyğun canlı oynanılan oyun tapılmadı.</p>`;
       */ // 3. Bitmiş oyunlar bölməsi
-      document.getElementById('live-container').innerHTML = matchesData.filter(m => 
+     /* document.getElementById('live-container').innerHTML = matchesData.filter(m => 
     m.status === 'IN_PLAY' || m.status === 'PAUSED' || m.status === 'HALFTIME'
 ).map(m => {
     // Cari hesabı almaq üçün: birinci 'current' sahəsini yoxlayırıq, 
@@ -222,8 +224,35 @@ document.getElementById('live-container').innerHTML = liveMatches.map(m => {
         <small>Status: ${m.status}</small>
     </div>`;
 }).join('') || "Hazırda canlı oyun yoxdur.";
+*/
+        // 1. Canlı oyunları tapmaq üçün daha geniş şərt
+const liveMatches = window.matchesData.filter(m => {
+    const status = (m.status || '').toUpperCase();
+    const isLiveStatus = ['IN_PLAY', 'PAUSED', 'HALFTIME', 'LIVE'].includes(status);
+    
+    // Əlavə təhlükəsizlik: Oyun artıq başlayıbsa, lakin status hələ 'TIMED' və ya 'SCHEDULED'dirsə
+    // bu şərt oyunu canlı siyahısına salacaq.
+    const isStarted = (new Date(m.utcDate) <= new Date()) && (status !== 'FINISHED' && status !== 'CANCELLED');
+    
+    return isLiveStatus || isStarted;
+});
 
-        
+// 2. Render etmə
+document.getElementById('live-container').innerHTML = liveMatches.length > 0 
+    ? liveMatches.map(m => {
+        // Hesabı daha etibarlı yollarla alırıq
+        const score = m.score?.current || m.score?.fullTime || { home: 0, away: 0 };
+        return `
+        <div class="match-card" style="border-left: 4px solid #e74c3c;">
+            <strong>${m.homeTeam.name} vs ${m.awayTeam.name}</strong><br>
+            <div style="font-size: 1.5em; font-weight: bold; color: #e74c3c; margin: 10px 0;">
+                ${score.home ?? 0} : ${score.away ?? 0}
+            </div>
+            <small>Status: ${m.status}</small>
+        </div>`;
+    }).join('') 
+    : "Hazırda canlı oyun yoxdur (və ya API-dən məlumat gecikir).";
+
         
        const finishedMatches = window.matchesData.filter(m => {
             const status = m.status ? m.status.toUpperCase() : '';
@@ -439,7 +468,7 @@ setInterval(function() {
         console.log("Arxa fonda canlı məlumatlar avtomatik yenilənir...");
         fetchMatches(); // Yalnız matçları və dəqiqələri yenidən çəkir
     }
-}, 60000); // 60000 milli saniyə = 1 dəqiqə
+}, 30000); // 60000 milli saniyə = 1 dəqiqə
 </script>
 </body>
 </html>
